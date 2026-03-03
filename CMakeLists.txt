@@ -3,13 +3,14 @@ project(quarks_web)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_COMPILER "clang++")
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "app/*.cpp"
     "src/*.cpp"
 )
 
-add_executable(quarks_web ${SOURCES})
+add_executable(quarks ${SOURCES})
 
 target_include_directories(quarks
     PUBLIC
