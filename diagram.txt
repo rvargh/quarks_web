@@ -1,0 +1,46 @@
+quakrs_web/
+│
+├── CMakeLists.txt
+├── README.md
+├── .gitignore
+│
+├── include/
+│   └── quakrs_web/
+│       ├── server.hpp
+│       ├── socket.hpp
+│       │
+│       ├── http/
+│       │   ├── request.hpp
+│       │   ├── response.hpp
+│       │   └── parser.hpp
+│       │
+│       ├── net/
+│       │   ├── epoll.hpp
+│       │   └── connection.hpp
+│       │
+│       └── core/
+│           ├── config.hpp
+│           └── logger.hpp
+│
+├── src/
+│   ├── server.cpp
+│   ├── socket.cpp
+│   │
+│   ├── http/
+│   │   ├── request.cpp
+│   │   ├── response.cpp
+│   │   └── parser.cpp
+│   │
+│   ├── net/
+│   │   ├── epoll.cpp
+│   │   └── connection.cpp
+│   │
+│   └── core/
+│       ├── config.cpp
+│       └── logger.cpp
+│
+├── app/
+│   └── main.cpp
+│
+└── tests/
+    └── server_test.cpp
