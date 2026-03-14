@@ -1,4 +1,5 @@
 #include "quarks_web/common.hpp"
+#include  "quarks_web/socket.hpp"
 
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
@@ -11,6 +12,16 @@ int main() {
         std::cout << "i = " << i << std::endl;
     }
 
+    try {
+        Socket socket;
+        socket.bind_socket();
+
+        socket.listen_socket();
+        socket.accept_socket();
+    } catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     return 0;
-    // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }
