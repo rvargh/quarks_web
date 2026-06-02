@@ -16,7 +16,8 @@ HttpServer::HttpServer() {
 
 void HttpServer::create_socket() {
 
-    _socket = socket(AF_INET, SOCK_STREAM, 0);
+    // creating the socket as non-blocking
+    _socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (_socket == -1) {
         throw_socket_error("socket create failed");
     }
@@ -31,25 +32,52 @@ void HttpServer::create_socket() {
 
 void HttpServer::start_server() {
 
-    while (true) {
-        std::cout << "Starting listening for HTTP requests" << std::endl;
+    int epoll_fd = epoll_create1(0);
 
-        _client_fd = accept(_socket,reinterpret_cast<sockaddr*>(&_server_address),&_address_length);
-        if (_client_fd == -1) {
-            throw_socket_error("socket accept failed");
+    epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = _socket;
+
+    epoll_ctl(epoll_fd,EPOLL_CTL_ADD,_socket,&ev);
+
+    while (true) {
+
+        epoll_event event_list[10];
+
+        int epoll_ready_list = epoll_wait(epoll_fd,event_list,10,-1);
+
+        for (int i = 0; i < epoll_ready_list; i++) {
+            int fd = event_list[i].data.fd;
+
+            std::cout << "Starting listening for HTTP requests" << std::endl;
+
+            _client_fd = accept4(_socket,reinterpret_cast<sockaddr*>(&_server_address),&_address_length,SOCK_NONBLOCK);
+            if (_client_fd == -1) {
+                if (errno == EAGAIN) continue;
+
+                throw_socket_error("socket accept failed");
+            }
+
+            connections.emplace(_client_fd,Connection(_client_fd));
+
+            epoll_event client_ev;
+            client_ev.events = EPOLLIN | EPOLLOUT;
+            client_ev.data.fd = _client_fd;
+
+            epoll_ctl(epoll_fd,EPOLL_CTL_ADD,_client_fd,&client_ev);
+          //  Socket client_socket(_client_fd);
+
+            // std::cout << "message received:" << client_socket.recv_data() << std::endl;
+
+          //  HttpClient client(std::move(client_socket));
+
+          //  client.handle();
+
+            std::cout << "Accepted socket " << _client_fd << std::endl;
+
         }
 
-        Socket client_socket(_client_fd);
-
-       // std::cout << "message received:" << client_socket.recv_data() << std::endl;
-
-        HttpClient client(std::move(client_socket));
-
-        client.handle();
-
-        std::cout << "Accepted socket " << _client_fd << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      //  std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
